@@ -22,10 +22,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 18
-
-      - name: Build class library
-        id: nuget-deps
-        run: Update-Package -reinstall
       
       - name: Build class library
         id: build
@@ -59,7 +55,7 @@ jobs:
             See: [Link](${{ github.event.repository.html_url }}/commit/${{ github.sha }})
 
       - name: Send failed telegram message
-        if: always() && (steps.nuget-deps.outcome == 'failure' || steps.build.outcome == 'failure' || steps.archive.outcome == 'failure' || steps.js-deps.outcome == 'failure' || steps.semantic-release.outcome == 'failure')
+        if: always() && (steps.build.outcome == 'failure' || steps.archive.outcome == 'failure' || steps.js-deps.outcome == 'failure' || steps.semantic-release.outcome == 'failure')
         uses: WildEgor/tg-notification-action@v1.1.0
         with:
           TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
