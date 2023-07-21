@@ -1,0 +1,67 @@
+name: Publish ApiRequests.Http.Unity
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    name: Build and publish NuGet package
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+      issues: write
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Build class library
+        id: build
+        run: dotnet build --configuration Release
+
+      - name: Make archive fot Github release
+        id: archive
+        run: zip -e bin/ApiRequests.Http.Unity.zip bin/Release
+
+      - name: Install Semantic-Release Deps
+        id: deps
+        run: yarn install
+
+      - name: Write current version to env (RELEASE_VERSION)
+        id: semantic-release
+        run: npm run release:production
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send success telegram message
+        if: always() && steps.publish.outcome == 'success'
+        uses: WildEgor/tg-notification-action@v1.1.0
+        with:
+          TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+          MESSAGE: |
+            Action: ✅ Build package success (ApiRequests.Http.Unity)
+            Package version: ${{ env.RELEASE_VERSION }}
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            See: [Link](${{ github.event.repository.html_url }}/commit/${{ github.sha }})
+
+      - name: Send failed telegram message
+        if: always() && (steps.deps.outcome == 'failure' || steps.semantic-release.outcome == 'failure' || steps.build.outcome == 'failure' || steps.archive.outcome == 'failure')
+        uses: WildEgor/tg-notification-action@v1.1.0
+        with:
+          TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_TO }}
+          MESSAGE: |
+            Action: ❌ Build package failure (ApiRequests.Http.Unity)
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+            See: [Link](${{ github.event.workflow.url }})
