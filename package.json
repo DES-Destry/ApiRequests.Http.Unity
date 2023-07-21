@@ -1,0 +1,22 @@
+{
+  "name": "api-requests.http.unity",
+  "version": "0.0.0-development",
+  "main": "index.js",
+  "repository": "git@github.com:DES-Destry/ApiRequests.Http.Unity.git",
+  "author": "Andrey Kirik <dev.andrey.kirik@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "release:production": "semantic-release --branches master",
+    "semantic-release": "semantic-release"
+  },
+  "private": true,
+  "devDependencies": {
+    "semantic-release": "^21.0.7",
+    "@semantic-release/commit-analyzer": "^10.0.1",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.0.4",
+    "@semantic-release/npm": "^10.0.4",
+    "@semantic-release/release-notes-generator": "^11.0.4"
+  }
+}
